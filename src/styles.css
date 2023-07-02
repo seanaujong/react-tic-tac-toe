@@ -94,3 +94,7 @@ body {
     justify-content: center;
     align-items: center;
 }
+
+.winning-square {
+    background-color: #FFFF00;
+}
