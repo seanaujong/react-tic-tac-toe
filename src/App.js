@@ -22,7 +22,7 @@ function Board({ xIsNext, squares, onPlay }) {
         } else {
             nextSquares[i] = 'O';
         }
-        onPlay(nextSquares);
+        onPlay(nextSquares, i);
     }
 
     const winnerInfo = calculateWinner(squares);
@@ -63,15 +63,16 @@ function Board({ xIsNext, squares, onPlay }) {
 }
 
 export default function Game() {
-    const [history, setHistory] = useState([Array(9).fill(null)]);
+    const [history, setHistory] = useState([{squares: Array(9).fill(null), index: -1}]);
     const [currentMove, setCurrentMove] = useState(0);
     const xIsNext = currentMove % 2 === 0;
-    const currentSquares = history[currentMove];
+    const currentSquares = history[currentMove].squares;
     const [ascending, setAscending] = useState(true);
     const displayOrder = ascending ? "Ascending" : "Descending";
 
-    function handlePlay(nextSquares) {
-        const nextHistory = [...history.slice(0, currentMove + 1), nextSquares];
+    function handlePlay(nextSquares, i) {
+        const nextHistory = [...history.slice(0, currentMove + 1), 
+            {squares: nextSquares, index: i}];
         setHistory(nextHistory);
         setCurrentMove(nextHistory.length - 1);
     }
@@ -80,17 +81,22 @@ export default function Game() {
         setCurrentMove(nextMove);
     }
 
-    const moves = history.map((squares, move) => {
+    const moves = history.map((turnInfo, move) => {
         let description;
+        let moveDetails = "";
         if (move > 0) {
-            description = 'Go to move #' + move;
+            const row = Math.floor(turnInfo.index / 3);
+            const col = turnInfo.index % 3;
+            const symbol = turnInfo.index % 2 === 0 ? 'X' : 'O';
+            moveDetails = ' - ' + symbol + '(' + row + ', ' + col + ')';
+            description = 'Go to move #' + move + moveDetails;
         } else {
             description = 'Go to game start';
         }
         return (
             <li key={move}>
                 {move === currentMove ? (
-                    <>You are at move #{move}</>
+                    <>You are at move #{move}{moveDetails}</>
                 ) : (
                     <button onClick={() => jumpTo(move)}>{description}</button>
                 )}
